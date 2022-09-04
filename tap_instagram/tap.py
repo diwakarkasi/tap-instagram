@@ -43,9 +43,6 @@ session = requests.Session()
 # Backoff retries
 MAX_RETRIES = 3
 
-class IGClientError(Exception):
-    pass
-
 class TapInstagram(Tap):
     """Instagram tap class."""
 
@@ -92,8 +89,6 @@ class TapInstagram(Tap):
     @backoff.on_exception(retry_after_wait_gen,
                           max_tries=MAX_RETRIES)
     @backoff.on_exception(backoff.expo,
-                          (IGClientError,
-                          Timeout),
                           max_tries=MAX_RETRIES,
                           factor=2)
     def _exchange_token(self, user_id: str):
