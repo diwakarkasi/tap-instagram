@@ -1,7 +1,7 @@
 """Instagram tap class."""
 
 from typing import Dict, List
-
+import backoff
 import requests
 from singer_sdk import Stream, Tap
 from singer_sdk import typing as th  # JSON schema typing helpers
@@ -40,6 +40,11 @@ BASE_URL = "https://graph.facebook.com/{ig_user_id}"
 
 session = requests.Session()
 
+# Backoff retries
+MAX_RETRIES = 3
+
+class IGClientError(Exception):
+    pass
 
 class TapInstagram(Tap):
     """Instagram tap class."""
@@ -84,7 +89,13 @@ class TapInstagram(Tap):
             user_id: self._exchange_token(user_id)
             for user_id in self.config.get("ig_user_ids")
         }
-
+    @backoff.on_exception(retry_after_wait_gen,
+                          max_tries=MAX_RETRIES)
+    @backoff.on_exception(backoff.expo,
+                          (IGClientError,
+                          Timeout),
+                          max_tries=MAX_RETRIES,
+                          factor=2)
     def _exchange_token(self, user_id: str):
         url = BASE_URL.format(ig_user_id=user_id)
         data = {
