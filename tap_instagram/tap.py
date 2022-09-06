@@ -1,7 +1,7 @@
 """Instagram tap class."""
 
 from typing import Dict, List
-
+import time
 import requests
 from singer_sdk import Stream, Tap
 from singer_sdk import typing as th  # JSON schema typing helpers
@@ -39,7 +39,6 @@ STREAM_TYPES = [
 BASE_URL = "https://graph.facebook.com/{ig_user_id}"
 
 session = requests.Session()
-
 
 class TapInstagram(Tap):
     """Instagram tap class."""
@@ -84,7 +83,6 @@ class TapInstagram(Tap):
             user_id: self._exchange_token(user_id)
             for user_id in self.config.get("ig_user_ids")
         }
-
     def _exchange_token(self, user_id: str):
         url = BASE_URL.format(ig_user_id=user_id)
         data = {
@@ -92,6 +90,7 @@ class TapInstagram(Tap):
             "access_token": self.config.get("access_token"),
         }
         self.logger.info(f"Exchanging access token for user: {user_id}")
+        time.sleep(0.01)
         response = session.get(url=url, params=data)
         response.raise_for_status()
         self.logger.info(f"Successfully exchanged token for user: {user_id}")
