@@ -90,7 +90,7 @@ class TapInstagram(Tap):
             "access_token": self.config.get("access_token"),
         }
         self.logger.info(f"Exchanging access token for user: {user_id}")
-        time.sleep(0.01)
+        time.sleep(0.05)
         response = session.get(url=url, params=data)
         response.raise_for_status()
         self.logger.info(f"Successfully exchanged token for user: {user_id}")
