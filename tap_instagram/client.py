@@ -30,6 +30,7 @@ class InstagramStream(RESTStream):
     @property
     def http_headers(self) -> dict:
         """Return the http headers needed."""
+        time.sleep(0.1)
         headers = {}
         if "user_agent" in self.config:
             headers["User-Agent"] = self.config.get("user_agent")
@@ -55,6 +56,7 @@ class InstagramStream(RESTStream):
         self, context: Optional[dict], next_page_token: Optional[Any]
     ) -> Dict[str, Any]:
         """Return a dictionary of values to be used in URL parameterization."""
+        time.sleep(0.1)
         if next_page_token:  # TODO: understand what this does & why it works!
             return urllib.parse.parse_qs(urllib.parse.urlparse(next_page_token).query)
         params: dict = {"access_token": self.config["access_token"]}
@@ -65,11 +67,11 @@ class InstagramStream(RESTStream):
 
     def parse_response(self, response: requests.Response) -> Iterable[dict]:
         """Parse the response and return an iterator of result rows."""
-        time.sleep(0.01)
+        time.sleep(0.1)
         yield from extract_jsonpath(self.records_jsonpath, input=response.json())
 
     def validate_response(self, response: requests.Response) -> None:
-        time.sleep(0.01)
+        time.sleep(0.1)
         if 400 <= response.status_code < 500:
             msg = (
                 f"{response.status_code} Client Error: "
