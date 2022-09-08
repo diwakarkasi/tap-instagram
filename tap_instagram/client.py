@@ -4,6 +4,8 @@ import urllib.parse
 from pathlib import Path
 from typing import Any, Dict, Iterable, Optional
 
+import time
+
 import requests
 from singer_sdk.exceptions import FatalAPIError, RetriableAPIError
 from singer_sdk.helpers.jsonpath import extract_jsonpath
@@ -37,6 +39,7 @@ class InstagramStream(RESTStream):
         self, response: requests.Response, previous_token: Optional[Any]
     ) -> Optional[Any]:
         """Return a token for identifying next page or None if no more pages."""
+        time.sleep(0.1)
         if self.next_page_token_jsonpath:
             all_matches = extract_jsonpath(
                 self.next_page_token_jsonpath, response.json()
@@ -62,9 +65,11 @@ class InstagramStream(RESTStream):
 
     def parse_response(self, response: requests.Response) -> Iterable[dict]:
         """Parse the response and return an iterator of result rows."""
+        time.sleep(0.01)
         yield from extract_jsonpath(self.records_jsonpath, input=response.json())
 
     def validate_response(self, response: requests.Response) -> None:
+        time.sleep(0.01)
         if 400 <= response.status_code < 500:
             msg = (
                 f"{response.status_code} Client Error: "
